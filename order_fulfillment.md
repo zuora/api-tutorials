@@ -12,13 +12,23 @@ By following this tutorial, you will learn how to build a classic basic fulfillm
 - You must have an OAuth client created. See <a href="https://knowledgecenter.zuora.com/Billing/Tenant_Management/A_Administrator_Settings/Manage_Users#Create_an_OAuth_Client_for_a_User" target="_blank">Create an OAuth Client for a User</a> for more information.
 
 ## Step 1. Generate an OAuth token
-See [Create an OAuth token](./basic-b2c/1-authentication.md) for details.  
+You must create an OAuth token that will be used for API requests with a client ID and client secret created on UI.
 
-Get the token and replace `{{bearer_token}}` in this doc with the actual value.
+API Request:
+```bash
+curl --location --request POST 'https://rest.zuora.com/oauth/token' \
+        --header 'Content-Type: application/x-www-form-urlencoded' \
+        --data-urlencode 'client_id={{your client ID}}' \
+        --data-urlencode 'client_secret={{your client secret}}’ \
+        --data-urlencode 'grant_type=client_credentials'
+``` 
+
+Get the access_token and replace `{{bearer_token}}` in this doc with the returned value.
 
 ## Step 2. (Optional) Create a demo billing account for the end user if it does not exist.
 
-``` 
+API Request:
+```bash
 curl --location --request POST 'https://rest.zuora.com/v1/accounts' \
 --header 'Authorization: Bearer {{bearer_token}}' \
 --header 'Content-Type: application/json' \
@@ -43,10 +53,10 @@ curl --location --request POST 'https://rest.zuora.com/v1/accounts' \
     "name": "Zuora Fulfillment Account",
     "notes": "This account is for demo purposes."
 }' 
-``` 
+```
 
 The response body looks like 
-```
+```json
 {
     "success": true,
     "accountId": "8a90f50888092efb0188097c364511d2",
@@ -61,7 +71,8 @@ In this step, the end user bought 10 physical goods with each unit priced at $30
 
 Need to replace `{{accountNumber}}` with the returned value from step2. In this tutorial, it is `A00082003`.
 
-``` 
+API Request:
+```bash
 curl --location --request POST 'https://rest.zuora.com/v1/orders?returnIds=true' \
 --header 'Authorization: Bearer {{bearer_token}}' \
 --header 'Content-Type: application/json' \
@@ -95,7 +106,7 @@ curl --location --request POST 'https://rest.zuora.com/v1/orders?returnIds=true'
 ``` 
 
 The response body looks like 
-```
+```json
 {
     "success": true,
     "orderNumber": "O-00170371",
@@ -128,7 +139,8 @@ Need to replace
 - `{{orderNumber}}` with the returned value from step3, in this tutorial it is `O-00170371`.
 - `{{itemNumber}}` with the returned value from step3, in this tutorial it is `1` in orderLineItems.itemNumber.
 
-``` 
+API Request:
+```bash
 curl --location --request POST 'https://rest.zuora.com/v1/orders?returnIds=true' \
 --header 'Authorization: Bearer {{bearer_token}}' \
 --header 'Content-Type: application/json' \
@@ -163,7 +175,7 @@ curl --location --request POST 'https://rest.zuora.com/v1/orders?returnIds=true'
 
 The response body looks like 
 
-```
+```json
 {
     "success": true,
     "orderNumber": "RMA-00170372",
@@ -191,7 +203,9 @@ You can set different state for the fulfillment. The state of the fulfillment ar
 More details can be found [here](https://knowledgecenter.zuora.com/Zuora_Billing/Subscriptions/Order_Line_Items/C_Fulfillments/Add_fulfillments_to_order_line_items)
 
 Need to replace `{{returnOrderLineItemId}}` with the returned value from step3, in this tutorial it is `8a90f50888092efb0188097c3a7c11e8` in orderLineItems[0].id. 
-``` 
+
+API Request:
+```bash
 curl --location --request POST 'https://rest.zuora.com/v1/fulfillments' \
 --header 'Authorization: Bearer {{bearer_token}}' \
 --header 'Content-Type: application/json' \
@@ -217,7 +231,7 @@ curl --location --request POST 'https://rest.zuora.com/v1/fulfillments' \
 ``` 
 
 The response body looks like 
-```
+```json
 {
     "fulfillments": [
         {
@@ -240,14 +254,16 @@ The response body looks like
 In this step, we verify the generated credit memo for the account with total amount $60, $30 for each of the 2 returned devices.
 
 Need to replace `{{accountNumber}}` with the returned value from step2, in this tutorial it is `A00082003`. 
-``` 
+
+API Request:
+```bash 
 curl --location --request GET 'https://rest.zuora.com/v1/creditmemos?accountNumber={{accountNumber}}' \
 --header 'Authorization: Bearer {{bearer_token}}' \
 --header 'Content-Type: application/json'  
 ``` 
 
 The response body looks like 
-```
+```json
 {
     "creditmemos": [
         {
